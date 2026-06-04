@@ -7,6 +7,12 @@ package io.debezium.jbang.core.commands;
 
 import java.util.concurrent.Callable;
 
+import io.debezium.jbang.core.commands.pipeline.PipelineCommand;
+import io.debezium.jbang.core.commands.pipeline.PipelineCreate;
+import io.debezium.jbang.core.commands.pipeline.PipelineDelete;
+import io.debezium.jbang.core.commands.pipeline.PipelineGet;
+import io.debezium.jbang.core.commands.pipeline.PipelineList;
+import io.debezium.jbang.core.commands.pipeline.PipelineUpdate;
 import io.debezium.jbang.core.commands.version.VersionCommand;
 import io.debezium.jbang.core.common.Printer;
 
@@ -35,8 +41,20 @@ public class DebeziumJBangMain implements Callable<Integer> {
             // ignore
         }
 
+        var pipelineCmd = new CommandLine(new PipelineCommand(this))
+                .addSubcommand("list", new CommandLine(new PipelineList(this)))
+                .addSubcommand("get", new CommandLine(new PipelineGet(this)))
+                .addSubcommand("create", new CommandLine(new PipelineCreate(this)))
+                .addSubcommand("update", new CommandLine(new PipelineUpdate(this)))
+                .addSubcommand("delete", new CommandLine(new PipelineDelete(this)));
+
         commandLine = new CommandLine(this)
-                .addSubcommand("version", new CommandLine(new VersionCommand(this)));
+                .addSubcommand("version", new CommandLine(new VersionCommand(this)))
+                .addSubcommand("pipeline", pipelineCmd)
+                .setExecutionExceptionHandler((ex, cmd, parseResult) -> {
+                    cmd.getErr().println("ERROR: " + ex.getMessage());
+                    return 1;
+                });
 
         int exitCode = commandLine.execute(args);
         quit(exitCode);
