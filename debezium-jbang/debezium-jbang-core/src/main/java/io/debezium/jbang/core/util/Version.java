@@ -6,9 +6,12 @@
 package io.debezium.jbang.core.util;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import io.debezium.jbang.core.common.CommandLineHelper;
 
@@ -47,18 +50,39 @@ public class Version {
 
     private static String getJBangVersion() {
         try {
-            if (System.getenv(JBANG_HOME) != null && !System.getenv(JBANG_HOME).isBlank()) {
-                return Files.readString(Paths.get(System.getenv(JBANG_HOME)).resolve(JBANG_VERSION_FILE)).trim();
+            String jbangHome = System.getenv(JBANG_HOME);
+            if (jbangHome != null && !jbangHome.isBlank()) {
+                String version = Files.readString(Paths.get(jbangHome).resolve(JBANG_VERSION_FILE)).trim();
+                if (!version.isBlank()) {
+                    return version;
+                }
             }
-            // fallback to .jbang cache that has a list of latest version
-            return Files
-                    .readString(Paths.get(CommandLineHelper.getHomeDir().toString())
-                            .resolve(JBANG_CACHE + JBANG_VERSION_FILE));
-
         }
         catch (Exception ignore) {
-            return null;
         }
+
+        try {
+            Path cachePath = Paths.get(CommandLineHelper.getHomeDir().toString())
+                    .resolve(JBANG_CACHE + JBANG_VERSION_FILE);
+            String version = Files.readString(cachePath).trim();
+            if (!version.isBlank()) {
+                return version;
+            }
+        }
+        catch (Exception ignore) {
+        }
+
+        try {
+            Process p = new ProcessBuilder("jbang", "version").start();
+            String version = new String(p.getInputStream().readAllBytes(), StandardCharsets.UTF_8).trim();
+            if (p.waitFor(10, TimeUnit.SECONDS) && p.exitValue() == 0 && !version.isBlank()) {
+                return version;
+            }
+        }
+        catch (Exception ignore) {
+        }
+
+        return null;
     }
 
     public static String getCoreVersion() {
