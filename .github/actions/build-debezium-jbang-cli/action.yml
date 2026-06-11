@@ -13,6 +13,8 @@ runs:
   using: "composite"
   steps:
     - uses: ./.github/actions/setup-java
+    - name: Set up JBang
+      uses: jbangdev/setup-jbang@main
     - uses: ./.github/actions/maven-cache
       with:
         key: ${{ inputs.maven-cache-key }}
