@@ -7,6 +7,7 @@ package io.debezium.jbang.core.commands.pipeline;
 
 import io.debezium.jbang.core.DebeziumJBangMain;
 import io.debezium.jbang.core.commands.DebeziumCommand;
+import io.debezium.jbang.core.commands.PlatformFactory;
 
 import picocli.CommandLine;
 
@@ -25,7 +26,7 @@ public class PipelineDelete extends DebeziumCommand {
 
     @Override
     public Integer doCall() throws Exception {
-        var platformService = platformFactory.create();
+        var platformService = platformFactory.pipeline();
         platformService.deletePipeline(id);
 
         println("Pipeline " + id + " deleted.");

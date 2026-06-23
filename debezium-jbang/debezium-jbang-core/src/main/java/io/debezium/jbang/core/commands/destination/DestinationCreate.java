@@ -12,6 +12,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import io.debezium.jbang.core.DebeziumJBangMain;
 import io.debezium.jbang.core.commands.DebeziumCommand;
+import io.debezium.jbang.core.commands.PlatformFactory;
 import io.debezium.jbang.core.platform.destination.Destination;
 import io.debezium.jbang.core.platform.destination.dto.DestinationRequest;
 import io.debezium.jbang.core.platform.destination.mapper.DestinationMapper;
@@ -37,7 +38,7 @@ public class DestinationCreate extends DebeziumCommand {
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
         DestinationRequest request = yamlMapper.readValue(file, DestinationRequest.class);
 
-        DestinationService destinationService = platformFactory.create();
+        DestinationService destinationService = platformFactory.destination();
         Destination created = DestinationMapper.toDomain(destinationService.createDestination(request));
 
         println("Destination created with id: " + created.id());

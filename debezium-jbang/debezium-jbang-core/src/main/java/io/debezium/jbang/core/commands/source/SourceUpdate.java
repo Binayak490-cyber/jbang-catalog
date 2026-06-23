@@ -12,6 +12,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import io.debezium.jbang.core.DebeziumJBangMain;
 import io.debezium.jbang.core.commands.DebeziumCommand;
+import io.debezium.jbang.core.commands.PlatformFactory;
 import io.debezium.jbang.core.platform.source.Source;
 import io.debezium.jbang.core.platform.source.dto.SourceRequest;
 import io.debezium.jbang.core.platform.source.mapper.SourceMapper;
@@ -40,7 +41,7 @@ public class SourceUpdate extends DebeziumCommand {
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
         SourceRequest request = yamlMapper.readValue(file, SourceRequest.class);
 
-        SourceService sourceService = platformFactory.create();
+        SourceService sourceService = platformFactory.source();
         Source updated = SourceMapper.toDomain(sourceService.updateSource(id, request));
 
         println("Source " + updated.id() + " updated.");

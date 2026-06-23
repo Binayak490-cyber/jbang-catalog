@@ -12,6 +12,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
 import io.debezium.jbang.core.DebeziumJBangMain;
 import io.debezium.jbang.core.commands.DebeziumCommand;
+import io.debezium.jbang.core.commands.PlatformFactory;
 import io.debezium.jbang.core.platform.pipeline.Pipeline;
 import io.debezium.jbang.core.platform.pipeline.dto.PipelineRequest;
 import io.debezium.jbang.core.platform.pipeline.mapper.PipelineMapper;
@@ -37,7 +38,7 @@ public class PipelineCreate extends DebeziumCommand {
         ObjectMapper yamlMapper = new ObjectMapper(new YAMLFactory());
         PipelineRequest request = yamlMapper.readValue(file, PipelineRequest.class);
 
-        PlatformService platformService = platformFactory.create();
+        PlatformService platformService = platformFactory.pipeline();
         Pipeline created = PipelineMapper.toDomain(platformService.createPipeline(request));
 
         println("Pipeline created with id: " + created.id());
