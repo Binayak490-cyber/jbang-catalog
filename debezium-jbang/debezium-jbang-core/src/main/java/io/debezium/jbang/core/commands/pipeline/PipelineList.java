@@ -9,6 +9,7 @@ import java.util.List;
 
 import io.debezium.jbang.core.DebeziumJBangMain;
 import io.debezium.jbang.core.commands.DebeziumCommand;
+import io.debezium.jbang.core.commands.PlatformFactory;
 import io.debezium.jbang.core.platform.pipeline.Pipeline;
 import io.debezium.jbang.core.platform.pipeline.mapper.PipelineMapper;
 import io.debezium.jbang.core.platform.pipeline.service.PlatformService;
@@ -27,7 +28,7 @@ public class PipelineList extends DebeziumCommand {
 
     @Override
     public Integer doCall() {
-        PlatformService platformService = platformFactory.create();
+        PlatformService platformService = platformFactory.pipeline();
         List<Pipeline> pipelines = PipelineMapper.toDomain(platformService.listPipelines());
 
         if (pipelines.isEmpty()) {

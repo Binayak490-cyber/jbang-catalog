@@ -9,6 +9,7 @@ import java.util.List;
 
 import io.debezium.jbang.core.DebeziumJBangMain;
 import io.debezium.jbang.core.commands.DebeziumCommand;
+import io.debezium.jbang.core.commands.PlatformFactory;
 import io.debezium.jbang.core.platform.source.Source;
 import io.debezium.jbang.core.platform.source.mapper.SourceMapper;
 import io.debezium.jbang.core.platform.source.service.SourceService;
@@ -27,7 +28,7 @@ public class SourceList extends DebeziumCommand {
 
     @Override
     public Integer doCall() {
-        SourceService sourceService = platformFactory.create();
+        SourceService sourceService = platformFactory.source();
         List<Source> sources = SourceMapper.toDomain(sourceService.listSources());
 
         if (sources.isEmpty()) {

@@ -7,6 +7,7 @@ package io.debezium.jbang.core.commands.destination;
 
 import io.debezium.jbang.core.DebeziumJBangMain;
 import io.debezium.jbang.core.commands.DebeziumCommand;
+import io.debezium.jbang.core.commands.PlatformFactory;
 import io.debezium.jbang.core.platform.destination.Destination;
 import io.debezium.jbang.core.platform.destination.mapper.DestinationMapper;
 import io.debezium.jbang.core.platform.destination.service.DestinationService;
@@ -28,7 +29,7 @@ public class DestinationGet extends DebeziumCommand {
 
     @Override
     public Integer doCall() throws Exception {
-        DestinationService destinationService = platformFactory.create();
+        DestinationService destinationService = platformFactory.destination();
         Destination d = DestinationMapper.toDomain(destinationService.getDestination(id));
 
         println("""

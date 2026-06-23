@@ -7,6 +7,7 @@ package io.debezium.jbang.core.commands.source;
 
 import io.debezium.jbang.core.DebeziumJBangMain;
 import io.debezium.jbang.core.commands.DebeziumCommand;
+import io.debezium.jbang.core.commands.PlatformFactory;
 import io.debezium.jbang.core.platform.source.Source;
 import io.debezium.jbang.core.platform.source.mapper.SourceMapper;
 import io.debezium.jbang.core.platform.source.service.SourceService;
@@ -28,7 +29,7 @@ public class SourceGet extends DebeziumCommand {
 
     @Override
     public Integer doCall() throws Exception {
-        SourceService sourceService = platformFactory.create();
+        SourceService sourceService = platformFactory.source();
         Source s = SourceMapper.toDomain(sourceService.getSource(id));
 
         println("""

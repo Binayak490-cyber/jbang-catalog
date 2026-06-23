@@ -7,6 +7,7 @@ package io.debezium.jbang.core.commands.pipeline;
 
 import io.debezium.jbang.core.DebeziumJBangMain;
 import io.debezium.jbang.core.commands.DebeziumCommand;
+import io.debezium.jbang.core.commands.PlatformFactory;
 import io.debezium.jbang.core.platform.pipeline.Pipeline;
 import io.debezium.jbang.core.platform.pipeline.mapper.PipelineMapper;
 import io.debezium.jbang.core.platform.pipeline.service.PlatformService;
@@ -28,7 +29,7 @@ public class PipelineGet extends DebeziumCommand {
 
     @Override
     public Integer doCall() throws Exception {
-        PlatformService platformService = platformFactory.create();
+        PlatformService platformService = platformFactory.pipeline();
         Pipeline p = PipelineMapper.toDomain(platformService.getPipeline(id));
 
         StringBuilder transforms = new StringBuilder();

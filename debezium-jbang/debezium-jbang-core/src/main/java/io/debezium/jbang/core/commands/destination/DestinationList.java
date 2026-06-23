@@ -9,6 +9,7 @@ import java.util.List;
 
 import io.debezium.jbang.core.DebeziumJBangMain;
 import io.debezium.jbang.core.commands.DebeziumCommand;
+import io.debezium.jbang.core.commands.PlatformFactory;
 import io.debezium.jbang.core.platform.destination.Destination;
 import io.debezium.jbang.core.platform.destination.mapper.DestinationMapper;
 import io.debezium.jbang.core.platform.destination.service.DestinationService;
@@ -27,7 +28,7 @@ public class DestinationList extends DebeziumCommand {
 
     @Override
     public Integer doCall() {
-        DestinationService destinationService = platformFactory.create();
+        DestinationService destinationService = platformFactory.destination();
         List<Destination> destinations = DestinationMapper.toDomain(destinationService.listDestinations());
 
         if (destinations.isEmpty()) {

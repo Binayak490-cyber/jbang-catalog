@@ -7,6 +7,7 @@ package io.debezium.jbang.core.commands.source;
 
 import io.debezium.jbang.core.DebeziumJBangMain;
 import io.debezium.jbang.core.commands.DebeziumCommand;
+import io.debezium.jbang.core.commands.PlatformFactory;
 
 import picocli.CommandLine;
 
@@ -25,7 +26,7 @@ public class SourceDelete extends DebeziumCommand {
 
     @Override
     public Integer doCall() throws Exception {
-        var sourceService = platformFactory.create();
+        var sourceService = platformFactory.source();
         sourceService.deleteSource(id);
 
         println("Source " + id + " deleted.");

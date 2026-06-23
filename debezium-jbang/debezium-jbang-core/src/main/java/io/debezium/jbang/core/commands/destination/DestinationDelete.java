@@ -7,6 +7,7 @@ package io.debezium.jbang.core.commands.destination;
 
 import io.debezium.jbang.core.DebeziumJBangMain;
 import io.debezium.jbang.core.commands.DebeziumCommand;
+import io.debezium.jbang.core.commands.PlatformFactory;
 
 import picocli.CommandLine;
 
@@ -25,7 +26,7 @@ public class DestinationDelete extends DebeziumCommand {
 
     @Override
     public Integer doCall() throws Exception {
-        var destinationService = platformFactory.create();
+        var destinationService = platformFactory.destination();
         destinationService.deleteDestination(id);
 
         println("Destination " + id + " deleted.");
