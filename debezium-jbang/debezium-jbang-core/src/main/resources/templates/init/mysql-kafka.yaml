@@ -1,7 +1,7 @@
 # dbz.yaml — Debezium Server project file (MySQL → Kafka)
 # Edit the fields below, then run: debezium validate
 
-version: "1.0"
+version: "3.7.0.Alpha2"
 
 # A short name for this CDC pipeline
 name: "my-mysql-to-kafka"
