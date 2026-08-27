@@ -16,6 +16,7 @@
     <properties>
         <skipNativeITs>true</skipNativeITs>
         <skipJBs>true</skipJBs>
+        <skipNetworkITs>true</skipNetworkITs>
     </properties>
 
     <dependencies>
@@ -174,6 +175,19 @@
                                 <include>**/*JB.java</include>
                             </includes>
                             <skipTests>${skipJBs}</skipTests>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>network-integration-test</id>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                        <configuration>
+                            <includes>
+                                <include>**/*NetworkIT.java</include>
+                            </includes>
+                            <skipTests>${skipNetworkITs}</skipTests>
                         </configuration>
                     </execution>
                     <execution>
