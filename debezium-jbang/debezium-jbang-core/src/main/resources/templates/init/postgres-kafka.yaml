@@ -4,7 +4,7 @@
 version: "{version}"
 
 # A short name for this CDC pipeline
-name: "my-postgres-to-kafka"
+name: "postgres-to-kafka"
 
 source:
   # Connector type — do not change

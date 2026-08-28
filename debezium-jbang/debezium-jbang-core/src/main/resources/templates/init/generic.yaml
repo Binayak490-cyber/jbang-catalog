@@ -4,7 +4,7 @@
 version: "{version}"
 
 # A short name for this CDC pipeline
-name: "my-{source_type}-to-{sink_type}"
+name: "{source_type}-to-{sink_type}"
 
 source:
   type: {source_type}

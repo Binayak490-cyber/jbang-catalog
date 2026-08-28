@@ -4,7 +4,7 @@
 version: "{version}"
 
 # A short name for this CDC pipeline
-name: "my-mysql-to-kafka"
+name: "mysql-to-kafka"
 
 source:
   # Connector type — do not change
