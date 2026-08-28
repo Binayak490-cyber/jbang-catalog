@@ -113,9 +113,13 @@ public class BuildCommand extends DebeziumCommand {
 
         println("Building " + sourceType + " -> " + sinkType + " (version " + version + ")...");
 
+        List<String> explicitArtifacts = new ArrayList<>();
+        explicitArtifacts.add(connector.artifact());
+        explicitArtifacts.add(sink.artifact());
+
         Path zipPath;
         try {
-            zipPath = new DistributionResolver(this::println).resolve(version, activeProfiles);
+            zipPath = new DistributionResolver(this::println).resolve(version, activeProfiles, explicitArtifacts);
         }
         catch (Exception e) {
             println("ERROR: Failed to resolve distribution: " + e.getMessage());
@@ -135,12 +139,12 @@ public class BuildCommand extends DebeziumCommand {
         println("Assembling OCI image...");
 
         Path tempDir = Files.createTempDirectory("debezium-image-");
-        List<Path> allJars = unpackLib(zipPath, tempDir);
+        List<Path> libJars = unpackLib(zipPath, tempDir);
+        Path runnerJar = unpackRunner(zipPath, tempDir);
 
         List<Path> coreJars = new ArrayList<>();
         List<Path> connectorSinkJars = new ArrayList<>();
-
-        for (Path jar : allJars) {
+        for (Path jar : libJars) {
             String name = jar.getFileName().toString();
             if (name.startsWith("debezium-connector") || name.startsWith("debezium-server-")) {
                 connectorSinkJars.add(jar);
@@ -167,23 +171,35 @@ public class BuildCommand extends DebeziumCommand {
 
         Path tarOutput = Path.of("target", "debezium-server.tar");
 
+        // Runner JAR goes to /app/, lib JARs to /app/lib/ (split into layers for cache efficiency)
         JibContainerBuilder builder = Jib.from(baseImage)
+                .addLayer(List.of(runnerJar), APP_DIR)
                 .addLayer(coreJars, APP_DIR.resolve("lib"))
                 .addLayer(connectorSinkJars, APP_DIR.resolve("lib"));
 
-        Path configFile = Path.of(configPath);
-        if (Files.exists(configFile)) {
-            builder = builder.addLayer(List.of(configFile), APP_DIR.resolve("conf"));
+        // Include application.properties if present alongside dbz.yaml
+        Path appProps = Path.of(configPath).resolveSibling("application.properties");
+        if (Files.exists(appProps)) {
+            builder = builder.addLayer(List.of(appProps), APP_DIR.resolve("conf"));
+            println("Including application.properties in image");
+        }
+        else {
+            println("Note: no application.properties found next to " + configPath + " — mount one at /app/conf/ when running the container");
         }
 
         builder.addEnvironmentVariable("DEBEZIUM_SOURCE_TYPE", config.source().type())
                 .addEnvironmentVariable("DEBEZIUM_SINK_TYPE", config.sink().type())
-                .setEntrypoint(List.of("java", "-cp", "/app/lib/*", "io.debezium.server.Main"))
+                .setEntrypoint(List.of(
+                        "java",
+                        "--add-opens", "java.base/java.lang=ALL-UNNAMED",
+                        "-cp", "/app/runner.jar:/app/conf:/app/lib/*",
+                        "io.debezium.server.Main"))
                 .containerize(Containerizer.to(
                         TarImage.at(tarOutput).named(imageName + ":" + imageTag)));
 
         println("Image assembled: " + tarOutput + " (" + imageName + ":" + imageTag + ")");
         println("Load with: docker load -i " + tarOutput);
+        println("Run with:  docker run --rm -v $(pwd)/application.properties:/app/conf/application.properties " + imageName + ":" + imageTag);
         return 0;
     }
 
@@ -204,6 +220,23 @@ public class BuildCommand extends DebeziumCommand {
             }
         }
         return jars;
+    }
+
+    private Path unpackRunner(Path zipPath, Path destDir) throws IOException {
+        try (InputStream fis = Files.newInputStream(zipPath);
+                ZipInputStream zis = new ZipInputStream(fis)) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                String name = entry.getName();
+                if (name.endsWith("-runner.jar") && !name.contains("/lib/")) {
+                    Path dest = destDir.resolve("runner.jar");
+                    Files.copy(zis, dest);
+                    return dest;
+                }
+                zis.closeEntry();
+            }
+        }
+        throw new RuntimeException("No runner jar found in " + zipPath);
     }
 
     static String normalizeVersion(String version) {
