@@ -1,7 +1,7 @@
 # dbz.yaml — Debezium Server project file ({source_type} → {sink_type})
 # Edit the fields below, then run: debezium validate
 
-version: "3.7.0.Alpha2"
+version: "{version}"
 
 # A short name for this CDC pipeline
 name: "my-{source_type}-to-{sink_type}"

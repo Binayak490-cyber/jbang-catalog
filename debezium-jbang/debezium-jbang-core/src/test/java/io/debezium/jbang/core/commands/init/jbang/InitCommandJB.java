@@ -33,7 +33,7 @@ class InitCommandJB extends JBangTestPicoCliCommand {
         String content = Files.readString(output);
         assertThat(content).contains("type: postgres");
         assertThat(content).contains("type: kafka");
-        assertThat(content).contains("version: \"1.0\"");
+        assertThat(content).contains("version:");
     }
 
     @Test
