@@ -4,7 +4,7 @@
 version: "{version}"
 
 # A short name for this CDC pipeline
-name: "my-mongodb-to-kafka"
+name: "mongodb-to-kafka"
 
 source:
   # Connector type — do not change
