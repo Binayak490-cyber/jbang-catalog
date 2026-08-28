@@ -16,6 +16,8 @@ import java.util.regex.Pattern;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 
+import io.debezium.jbang.core.commands.version.Version;
+
 public class DbzConfigLoader {
 
     private static final ObjectMapper MAPPER = new ObjectMapper(new YAMLFactory());
@@ -51,10 +53,12 @@ public class DbzConfigLoader {
     }
 
     public static String loadTemplate(String source, String sink) {
+        String cliVersion = Version.getCoreVersion();
         String templateName = source + "-" + sink + ".yaml";
         try (InputStream is = DbzConfigLoader.class.getResourceAsStream("/templates/init/" + templateName)) {
             if (is != null) {
-                return new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                String template = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                return template.replace("{version}", cliVersion != null ? cliVersion : "");
             }
         }
         catch (IOException ignore) {
@@ -63,7 +67,8 @@ public class DbzConfigLoader {
         try (InputStream is = DbzConfigLoader.class.getResourceAsStream("/templates/init/generic.yaml")) {
             if (is != null) {
                 String generic = new String(is.readAllBytes(), StandardCharsets.UTF_8);
-                return generic.replace("{source_type}", source).replace("{sink_type}", sink);
+                return generic.replace("{source_type}", source).replace("{sink_type}", sink)
+                        .replace("{version}", cliVersion != null ? cliVersion : "");
             }
         }
         catch (IOException ignore) {
