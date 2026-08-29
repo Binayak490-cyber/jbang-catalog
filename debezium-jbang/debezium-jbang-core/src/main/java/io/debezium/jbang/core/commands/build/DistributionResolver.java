@@ -5,6 +5,7 @@
  */
 package io.debezium.jbang.core.commands.build;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URI;
@@ -14,6 +15,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -27,16 +30,21 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import io.debezium.jbang.core.configuration.Configuration;
+
 public class DistributionResolver {
 
-    private static final String CENTRAL = "https://repo1.maven.org/maven2/";
+    private static final String DEFAULT_CENTRAL = "https://repo1.maven.org/maven2/";
     private static final String DIST_PATH = "io/debezium/debezium-server-dist";
-    private static final String ASSEMBLY_DESCRIPTOR_RESOURCE = "/assemblies/server-distribution.xml";
+    private static final String SOURCES_CLASSIFIER = "-sources.jar";
 
     private final Consumer<String> logger;
+    private final String central;
 
     public DistributionResolver(Consumer<String> logger) {
         this.logger = logger;
+        String configured = Configuration.load().getMavenCentralUrl();
+        this.central = (configured != null && !configured.isBlank()) ? configured : DEFAULT_CENTRAL;
     }
 
     public Path resolve(String version, List<String> activeProfiles, List<String> explicitArtifacts) throws Exception {
@@ -46,8 +54,8 @@ public class DistributionResolver {
         Path srcAssembliesDir = projectDir.resolve("src/main/resources/assemblies");
         Files.createDirectories(srcAssembliesDir);
 
-        // Download POM from Maven Central
-        String pomUrl = CENTRAL + DIST_PATH + "/" + version
+        // Download POM from Maven repository
+        String pomUrl = central + DIST_PATH + "/" + version
                 + "/debezium-server-dist-" + version + ".pom";
         logger.accept("Fetching POM from " + pomUrl);
 
@@ -69,24 +77,10 @@ public class DistributionResolver {
         transformer.transform(new DOMSource(doc), new StreamResult(sw));
         Files.writeString(pomPath, sw.toString(), StandardCharsets.UTF_8);
 
-        // Copy bundled assembly descriptor into the project directory
-        try (InputStream is = DistributionResolver.class.getResourceAsStream(ASSEMBLY_DESCRIPTOR_RESOURCE)) {
-            if (is == null) {
-                throw new IllegalStateException("Assembly descriptor not found in CLI resources");
-            }
-            Files.copy(is, srcAssembliesDir.resolve("server-distribution.xml"));
-        }
-
-        // Copy bundled entrypoint scripts to src/main/resources/distro/ (referenced by assembly descriptor)
+        // Extract assembly descriptor and distro scripts from the official sources jar
         Path distroDir = projectDir.resolve("src/main/resources/distro");
         Files.createDirectories(distroDir);
-        for (String script : new String[]{ "run.sh", "run.bat" }) {
-            try (InputStream is = DistributionResolver.class.getResourceAsStream("/scripts/" + script)) {
-                if (is != null) {
-                    Files.copy(is, distroDir.resolve(script));
-                }
-            }
-        }
+        extractFromSourcesJar(version, srcAssembliesDir, distroDir);
 
         String profiles = String.join(",", activeProfiles);
         logger.accept("Running: mvn package -P " + profiles);
@@ -278,6 +272,34 @@ public class DistributionResolver {
             }
         }
         return null;
+    }
+
+    private void extractFromSourcesJar(String version, Path assembliesDir, Path distroDir) throws IOException {
+        String sourcesUrl = central + DIST_PATH + "/" + version
+                + "/debezium-server-dist-" + version + SOURCES_CLASSIFIER;
+        logger.accept("Fetching assembly descriptor and distro scripts from " + sourcesUrl);
+        try (InputStream is = URI.create(sourcesUrl).toURL().openStream();
+                ZipInputStream zis = new ZipInputStream(is)) {
+            ZipEntry entry;
+            while ((entry = zis.getNextEntry()) != null) {
+                String name = entry.getName();
+                if (!entry.isDirectory()) {
+                    if (name.startsWith("distro/")) {
+                        String relative = name.substring("distro/".length());
+                        Path dest = distroDir.resolve(relative);
+                        Files.createDirectories(dest.getParent());
+                        Files.copy(zis, dest);
+                    }
+                    else if (name.startsWith("assemblies/")) {
+                        String relative = name.substring("assemblies/".length());
+                        Path dest = assembliesDir.resolve(relative);
+                        Files.createDirectories(dest.getParent());
+                        Files.copy(zis, dest);
+                    }
+                }
+                zis.closeEntry();
+            }
+        }
     }
 
     private static String findMaven() {
