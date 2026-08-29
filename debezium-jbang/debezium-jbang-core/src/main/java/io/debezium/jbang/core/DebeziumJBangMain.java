@@ -58,6 +58,7 @@ import io.debezium.jbang.core.commands.validate.ValidateCommand;
 import io.debezium.jbang.core.commands.version.DebeziumVersionProvider;
 import io.debezium.jbang.core.commands.version.VersionCommand;
 import io.debezium.jbang.core.common.Printer;
+import io.debezium.jbang.core.configuration.Configuration;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
 
@@ -82,6 +83,8 @@ public class DebeziumJBangMain implements Callable<Integer>, QuarkusApplication 
         catch (Exception e) {
             // ignore
         }
+
+        Configuration.initializeIfAbsent();
 
         commandLine = new CommandLine(this, factory)
                 .addSubcommand("version", new CommandLine(new VersionCommand(this)))

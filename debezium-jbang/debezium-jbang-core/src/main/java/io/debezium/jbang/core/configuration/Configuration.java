@@ -34,9 +34,6 @@ public class Configuration {
     @JsonProperty("baseImage")
     private String baseImage;
 
-    @JsonProperty("mavenLocalRepo")
-    private String mavenLocalRepo;
-
     @JsonProperty("mavenCentralUrl")
     private String mavenCentralUrl;
 
@@ -74,20 +71,19 @@ public class Configuration {
         this.baseImage = baseImage;
     }
 
-    public String getMavenLocalRepo() {
-        return mavenLocalRepo;
-    }
-
-    public void setMavenLocalRepo(String mavenLocalRepo) {
-        this.mavenLocalRepo = mavenLocalRepo;
-    }
-
     public String getMavenCentralUrl() {
         return mavenCentralUrl;
     }
 
     public void setMavenCentralUrl(String mavenCentralUrl) {
         this.mavenCentralUrl = mavenCentralUrl;
+    }
+
+    public static void initializeIfAbsent() {
+        Path configFile = CommandLineUtil.getHomeDir().resolve(CONFIG_FILE);
+        if (!Files.exists(configFile)) {
+            new Configuration().save();
+        }
     }
 
     public static Configuration load() {
