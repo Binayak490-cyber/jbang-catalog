@@ -92,7 +92,7 @@ public class BuildCommand extends DebeziumCommand {
             return 1;
         }
 
-        String version = normalizeVersion(config.version() != null ? config.version() : "3.7.0.Final");
+        String version = config.version() != null ? config.version() : "3.7.0.Final";
 
         List<String> activeProfiles = new ArrayList<>();
         activeProfiles.add("custom-distribution");
@@ -239,11 +239,4 @@ public class BuildCommand extends DebeziumCommand {
         throw new RuntimeException("No runner jar found in " + zipPath);
     }
 
-    static String normalizeVersion(String version) {
-        if (version != null && !version.contains(".Final") && !version.contains("-") && !version.contains(".Alpha")
-                && !version.contains(".Beta") && !version.contains(".CR")) {
-            return version + ".Final";
-        }
-        return version;
-    }
 }
