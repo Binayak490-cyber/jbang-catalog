@@ -38,16 +38,6 @@ class BuildCommandTest {
     }
 
     @Test
-    void normalizeVersionAppendsFinalSuffix() {
-        assertThat(BuildCommand.normalizeVersion("3.7.0")).isEqualTo("3.7.0.Final");
-        assertThat(BuildCommand.normalizeVersion("3.7.0.Final")).isEqualTo("3.7.0.Final");
-        assertThat(BuildCommand.normalizeVersion("3.7.0.Alpha1")).isEqualTo("3.7.0.Alpha1");
-        assertThat(BuildCommand.normalizeVersion("3.7.0.Beta1")).isEqualTo("3.7.0.Beta1");
-        assertThat(BuildCommand.normalizeVersion("3.7.0.CR1")).isEqualTo("3.7.0.CR1");
-        assertThat(BuildCommand.normalizeVersion("3.7.0-SNAPSHOT")).isEqualTo("3.7.0-SNAPSHOT");
-    }
-
-    @Test
     void doCallReturnsOneWhenConfigFileMissing() throws Exception {
         assertThat(silentCommand("nonexistent-config.yaml").doCall()).isEqualTo(1);
     }

@@ -92,6 +92,10 @@ public class DistributionResolver {
         command.add(profiles);
         command.add("-DskipTests");
         command.add("--no-transfer-progress");
+        String localRepo = Configuration.load().getMavenLocalRepo();
+        if (localRepo != null && !localRepo.isBlank()) {
+            command.add("-Dmaven.repo.local=" + localRepo);
+        }
 
         ProcessBuilder pb = new ProcessBuilder(command);
         pb.directory(projectDir.toFile());
