@@ -34,6 +34,9 @@ public class Configuration {
     @JsonProperty("baseImage")
     private String baseImage;
 
+    @JsonProperty("mavenLocalRepo")
+    private String mavenLocalRepo;
+
     @JsonProperty("mavenCentralUrl")
     private String mavenCentralUrl;
 
@@ -69,6 +72,14 @@ public class Configuration {
 
     public void setBaseImage(String baseImage) {
         this.baseImage = baseImage;
+    }
+
+    public String getMavenLocalRepo() {
+        return mavenLocalRepo;
+    }
+
+    public void setMavenLocalRepo(String mavenLocalRepo) {
+        this.mavenLocalRepo = mavenLocalRepo;
     }
 
     public String getMavenCentralUrl() {
