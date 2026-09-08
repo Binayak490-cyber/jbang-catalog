@@ -177,16 +177,6 @@ public class BuildCommand extends DebeziumCommand {
                 .addLayer(coreJars, APP_DIR.resolve("lib"))
                 .addLayer(connectorSinkJars, APP_DIR.resolve("lib"));
 
-        // Include application.properties if present alongside dbz.yaml
-        Path appProps = Path.of(configPath).resolveSibling("application.properties");
-        if (Files.exists(appProps)) {
-            builder = builder.addLayer(List.of(appProps), APP_DIR.resolve("conf"));
-            println("Including application.properties in image");
-        }
-        else {
-            println("Note: no application.properties found next to " + configPath + " — mount one at /app/conf/ when running the container");
-        }
-
         builder.addEnvironmentVariable("DEBEZIUM_SOURCE_TYPE", config.source().type())
                 .addEnvironmentVariable("DEBEZIUM_SINK_TYPE", config.sink().type())
                 .setEntrypoint(List.of(
@@ -200,6 +190,7 @@ public class BuildCommand extends DebeziumCommand {
         println("Image assembled: " + tarOutput + " (" + imageName + ":" + imageTag + ")");
         println("Load with: docker load -i " + tarOutput);
         println("Run with:  docker run --rm -v $(pwd)/application.properties:/app/conf/application.properties " + imageName + ":" + imageTag);
+        println("Note: mount your application.properties at runtime — do not bake config into the image (12-factor III)");
         return 0;
     }
 
