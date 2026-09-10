@@ -40,6 +40,12 @@ public class Configuration {
     @JsonProperty("mavenCentralUrl")
     private String mavenCentralUrl;
 
+    @JsonProperty("registryUsername")
+    private String registryUsername;
+
+    @JsonProperty("registryPassword")
+    private String registryPassword;
+
     public Map<String, Environment> getEnvironments() {
         return environments;
     }
@@ -88,6 +94,22 @@ public class Configuration {
 
     public void setMavenCentralUrl(String mavenCentralUrl) {
         this.mavenCentralUrl = mavenCentralUrl;
+    }
+
+    public String getRegistryUsername() {
+        return registryUsername;
+    }
+
+    public void setRegistryUsername(String registryUsername) {
+        this.registryUsername = registryUsername;
+    }
+
+    public String getRegistryPassword() {
+        return registryPassword;
+    }
+
+    public void setRegistryPassword(String registryPassword) {
+        this.registryPassword = registryPassword;
     }
 
     public static void initializeIfAbsent() {
