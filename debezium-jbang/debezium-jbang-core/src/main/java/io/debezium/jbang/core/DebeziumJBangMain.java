@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 
 import io.debezium.jbang.core.commands.SwitchCommand;
 import io.debezium.jbang.core.commands.build.BuildCommand;
+import io.debezium.jbang.core.commands.build.PushCommand;
 import io.debezium.jbang.core.commands.catalog.CatalogCommand;
 import io.debezium.jbang.core.commands.catalog.CatalogGet;
 import io.debezium.jbang.core.commands.catalog.CatalogList;
@@ -133,7 +134,8 @@ public class DebeziumJBangMain implements Callable<Integer>, QuarkusApplication 
                         .addSubcommand("get", new CommandLine(new CatalogGet(this))))
                 .addSubcommand("init", new CommandLine(new InitCommand(this)))
                 .addSubcommand("validate", new CommandLine(new ValidateCommand(this)))
-                .addSubcommand("build", new CommandLine(new BuildCommand(this)));
+                .addSubcommand("build", new CommandLine(new BuildCommand(this)))
+                .addSubcommand("push", new CommandLine(new PushCommand(this)));
 
         commandLine.getCommandSpec().versionProvider(new DebeziumVersionProvider());
 
