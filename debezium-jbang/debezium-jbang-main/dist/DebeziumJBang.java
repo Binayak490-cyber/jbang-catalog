@@ -11,6 +11,7 @@
 //JAVA_OPTIONS -Ddebezium.jbang.quarkusVersion=3.33.1.1 --add-opens java.base/java.lang=ALL-UNNAMED
 //DEPS io.quarkus.platform:quarkus-bom:3.33.1.1@pom
 //JAVA_OPTIONS -Djava.util.logging.manager=org.jboss.logmanager.LogManager
+//DEPS org.jboss.slf4j:slf4j-jboss-logmanager:2.0.2.Final
 //DEPS io.debezium:debezium-bom:${debezium.jbang.version:3.7.0-SNAPSHOT}@pom
 //DEPS io.debezium.jbang:debezium-jbang-core:${debezium.jbang.version:3.7.0-SNAPSHOT}
 //DEPS io.quarkus:quarkus-arc
