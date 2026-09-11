@@ -61,6 +61,33 @@ public class PushCommand extends DebeziumCommand {
             return 1;
         }
 
+        ResolvedImage resolved = resolveImage(config, registryOverride);
+        String fullImageRef = buildFullImageRef(resolved.registry(), resolved.name(), resolved.tag());
+
+        println("Pushing " + resolved.name() + ":" + resolved.tag() + " → " + (resolved.registry() != null ? resolved.registry() : "Docker Hub") + "...");
+
+        Optional<RegistryAuth> auth = RegistryAuthResolver.resolve(resolved.registry());
+        if (auth.isEmpty()) {
+            println("No credentials found — attempting anonymous push...");
+            println("  (If this fails, set DBZ_REGISTRY_USERNAME/DBZ_REGISTRY_PASSWORD or run 'docker login')");
+        }
+
+        RegistryImage target = RegistryImage.named(fullImageRef);
+        auth.ifPresent(a -> target.addCredential(a.username(), a.password()));
+
+        boolean insecure = allowInsecure || isLocalRegistry(resolved.registry());
+        Jib.from(TarImage.at(tarPath).named(resolved.name() + ":" + resolved.tag()))
+                .containerize(Containerizer.to(target).setAllowInsecureRegistries(insecure));
+
+        println("Pushed: " + fullImageRef);
+        println("Pull with: docker pull " + fullImageRef);
+        return 0;
+    }
+
+    private record ResolvedImage(String name, String tag, String registry) {
+    }
+
+    private static ResolvedImage resolveImage(DbzConfig config, String registryOverride) {
         String imageName = "debezium-server";
         String imageTag = config.version() != null ? config.version() : "3.7.0.Final";
         String registry = registryOverride;
@@ -77,27 +104,7 @@ public class PushCommand extends DebeziumCommand {
                 registry = img.registry();
             }
         }
-
-        String fullImageRef = buildFullImageRef(registry, imageName, imageTag);
-
-        println("Pushing " + imageName + ":" + imageTag + " → " + (registry != null ? registry : "Docker Hub") + "...");
-
-        Optional<RegistryAuth> auth = RegistryAuthResolver.resolve(registry);
-        if (auth.isEmpty()) {
-            println("No credentials found — attempting anonymous push...");
-            println("  (If this fails, set DBZ_REGISTRY_USERNAME/DBZ_REGISTRY_PASSWORD or run 'docker login')");
-        }
-
-        RegistryImage target = RegistryImage.named(fullImageRef);
-        auth.ifPresent(a -> target.addCredential(a.username(), a.password()));
-
-        boolean insecure = allowInsecure || isLocalRegistry(registry);
-        Jib.from(TarImage.at(tarPath).named(imageName + ":" + imageTag))
-                .containerize(Containerizer.to(target).setAllowInsecureRegistries(insecure));
-
-        println("Pushed: " + fullImageRef);
-        println("Pull with: docker pull " + fullImageRef);
-        return 0;
+        return new ResolvedImage(imageName, imageTag, registry);
     }
 
     private static boolean isLocalRegistry(String registry) {
