@@ -12,9 +12,13 @@
 
     <groupId>io.debezium.jbang</groupId>
     <artifactId>debezium-jbang-catalog</artifactId>
+    <version>3.7.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <properties>
+        <!-- Debezium parent -->
+        <version.debezium>${project.version}</version.debezium>
+
         <quarkus-version>3.33.1.1</quarkus-version>
         <version.jandex>3.5.3</version.jandex>
     </properties>
@@ -29,7 +33,7 @@
             <dependency>
                 <groupId>io.debezium</groupId>
                 <artifactId>debezium-bom</artifactId>
-                <version>${project.version}</version>
+                <version>${version.debezium}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
