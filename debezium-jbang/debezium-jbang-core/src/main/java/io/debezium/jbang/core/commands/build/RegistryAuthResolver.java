@@ -21,6 +21,11 @@ public class RegistryAuthResolver {
 
     private static final String ENV_USERNAME = "DBZ_REGISTRY_USERNAME";
     private static final String ENV_PASSWORD = "DBZ_REGISTRY_PASSWORD";
+    private static final String DOCKER_HUB_V1 = "https://index.docker.io/v1/";
+    private static final String DOCKER_HUB_INDEX = "index.docker.io";
+    private static final String DOCKER_HUB = "docker.io";
+    private static final String SCHEME_REGEX = "https?://";
+    private static final String TRAILING_SLASH_REGEX = "/$";
 
     public record RegistryAuth(String username, String password) {
     }
@@ -78,7 +83,7 @@ public class RegistryAuthResolver {
 
     private static String matchDockerConfigKey(String registry, Map<String, DockerAuthEntry> auths) {
         if (registry == null || registry.isBlank()) {
-            for (String candidate : new String[]{ "https://index.docker.io/v1/", "index.docker.io", "docker.io" }) {
+            for (String candidate : new String[]{ DOCKER_HUB_V1, DOCKER_HUB_INDEX, DOCKER_HUB }) {
                 if (auths.containsKey(candidate)) {
                     return candidate;
                 }
@@ -89,8 +94,8 @@ public class RegistryAuthResolver {
             return registry;
         }
         for (String key : auths.keySet()) {
-            String normalizedKey = key.replaceFirst("https?://", "").replaceAll("/$", "");
-            String normalizedRegistry = registry.replaceAll("/$", "");
+            String normalizedKey = key.replaceFirst(SCHEME_REGEX, "").replaceAll(TRAILING_SLASH_REGEX, "");
+            String normalizedRegistry = registry.replaceAll(TRAILING_SLASH_REGEX, "");
             if (normalizedKey.equals(normalizedRegistry) || normalizedRegistry.startsWith(normalizedKey + "/")) {
                 return key;
             }
