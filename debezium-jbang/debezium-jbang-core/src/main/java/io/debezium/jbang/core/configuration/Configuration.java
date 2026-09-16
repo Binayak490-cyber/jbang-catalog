@@ -46,6 +46,9 @@ public class Configuration {
     @JsonProperty("registryPassword")
     private String registryPassword;
 
+    @JsonProperty("registryAddress")
+    private String registryAddress;
+
     public Map<String, Environment> getEnvironments() {
         return environments;
     }
@@ -110,6 +113,14 @@ public class Configuration {
 
     public void setRegistryPassword(String registryPassword) {
         this.registryPassword = registryPassword;
+    }
+
+    public String getRegistryAddress() {
+        return registryAddress;
+    }
+
+    public void setRegistryAddress(String registryAddress) {
+        this.registryAddress = registryAddress;
     }
 
     public static void initializeIfAbsent() {
