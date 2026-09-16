@@ -19,6 +19,7 @@ import io.debezium.jbang.core.build.config.DbzConfig;
 import io.debezium.jbang.core.build.config.DbzConfigLoader;
 import io.debezium.jbang.core.commands.DebeziumCommand;
 import io.debezium.jbang.core.commands.build.RegistryAuthResolver.RegistryAuth;
+import io.debezium.jbang.core.configuration.Configuration;
 
 import picocli.CommandLine;
 
@@ -61,7 +62,7 @@ public class PushCommand extends DebeziumCommand {
             return 1;
         }
 
-        ResolvedImage resolved = resolveImage(config, registryOverride);
+        ResolvedImage resolved = resolveImage(config, registryOverride, Configuration.load());
         String fullImageRef = buildFullImageRef(resolved.registry(), resolved.name(), resolved.tag());
 
         println("Pushing " + resolved.name() + ":" + resolved.tag() + " → " + (resolved.registry() != null ? resolved.registry() : "Docker Hub") + "...");
@@ -87,7 +88,7 @@ public class PushCommand extends DebeziumCommand {
     private record ResolvedImage(String name, String tag, String registry) {
     }
 
-    private static ResolvedImage resolveImage(DbzConfig config, String registryOverride) {
+    private static ResolvedImage resolveImage(DbzConfig config, String registryOverride, Configuration globalConfig) {
         String imageName = "debezium-server";
         String imageTag = config.version() != null ? config.version() : "3.7.0.Final";
         String registry = registryOverride;
@@ -103,6 +104,10 @@ public class PushCommand extends DebeziumCommand {
             if (registry == null && img.registry() != null) {
                 registry = img.registry();
             }
+        }
+        // Fall back to global config registry if still not set
+        if (registry == null && globalConfig != null && globalConfig.getRegistryAddress() != null) {
+            registry = globalConfig.getRegistryAddress();
         }
         return new ResolvedImage(imageName, imageTag, registry);
     }
