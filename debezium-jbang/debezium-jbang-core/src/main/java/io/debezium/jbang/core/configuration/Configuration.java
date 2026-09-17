@@ -40,14 +40,45 @@ public class Configuration {
     @JsonProperty("mavenCentralUrl")
     private String mavenCentralUrl;
 
-    @JsonProperty("registryUsername")
-    private String registryUsername;
+    @JsonProperty("registry")
+    private Registry registry;
 
-    @JsonProperty("registryPassword")
-    private String registryPassword;
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Registry {
 
-    @JsonProperty("registryAddress")
-    private String registryAddress;
+        @JsonProperty("url")
+        private String url;
+
+        @JsonProperty("username")
+        private String username;
+
+        @JsonProperty("password")
+        private String password;
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+    }
 
     public Map<String, Environment> getEnvironments() {
         return environments;
@@ -99,28 +130,12 @@ public class Configuration {
         this.mavenCentralUrl = mavenCentralUrl;
     }
 
-    public String getRegistryUsername() {
-        return registryUsername;
+    public Registry getRegistry() {
+        return registry;
     }
 
-    public void setRegistryUsername(String registryUsername) {
-        this.registryUsername = registryUsername;
-    }
-
-    public String getRegistryPassword() {
-        return registryPassword;
-    }
-
-    public void setRegistryPassword(String registryPassword) {
-        this.registryPassword = registryPassword;
-    }
-
-    public String getRegistryAddress() {
-        return registryAddress;
-    }
-
-    public void setRegistryAddress(String registryAddress) {
-        this.registryAddress = registryAddress;
+    public void setRegistry(Registry registry) {
+        this.registry = registry;
     }
 
     public static void initializeIfAbsent() {
