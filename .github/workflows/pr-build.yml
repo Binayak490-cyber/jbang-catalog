@@ -53,6 +53,7 @@ jobs:
       - uses: debezium/debezium/.github/actions/maven-cache@main
         with:
           key: debezium-jbang-PR-build-${{ hashFiles('jbang-catalog/**/pom.xml') }}
+          save: 'true'
       - name: Maven build core dependencies
         run: ./jbang-catalog/mvnw -ntp clean install -f core/pom.xml -pl ${{ env.DEBEZIUM_CORE_DEPENDENCIES }} -DskipTests -DskipITs -Dformat.formatter.goal=validate -Dformat.imports.goal=check -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false -Dmaven.wagon.httpconnectionManager.ttlSeconds=120
 

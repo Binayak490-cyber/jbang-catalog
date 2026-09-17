@@ -106,8 +106,9 @@ public class PushCommand extends DebeziumCommand {
             }
         }
         // Fall back to global config registry if still not set
-        if (registry == null && globalConfig != null && globalConfig.getRegistryAddress() != null) {
-            registry = globalConfig.getRegistryAddress();
+        if (registry == null && globalConfig != null && globalConfig.getRegistry() != null
+                && globalConfig.getRegistry().getUrl() != null) {
+            registry = globalConfig.getRegistry().getUrl();
         }
         return new ResolvedImage(imageName, imageTag, registry);
     }

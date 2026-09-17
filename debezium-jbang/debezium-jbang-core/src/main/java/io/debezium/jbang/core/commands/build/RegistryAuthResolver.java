@@ -40,9 +40,10 @@ public class RegistryAuthResolver {
 
         // 2. ~/.dbz/config.yaml
         Configuration config = Configuration.load();
-        if (config.getRegistryUsername() != null && !config.getRegistryUsername().isBlank()
-                && config.getRegistryPassword() != null && !config.getRegistryPassword().isBlank()) {
-            return Optional.of(new RegistryAuth(config.getRegistryUsername(), config.getRegistryPassword()));
+        if (config.getRegistry() != null
+                && config.getRegistry().getUsername() != null && !config.getRegistry().getUsername().isBlank()
+                && config.getRegistry().getPassword() != null && !config.getRegistry().getPassword().isBlank()) {
+            return Optional.of(new RegistryAuth(config.getRegistry().getUsername(), config.getRegistry().getPassword()));
         }
 
         // 3. ~/.docker/config.json
